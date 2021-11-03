@@ -114,10 +114,11 @@ int running;
 /**************************************************/
 
 /**
- * Space to implement semaphores, Conner H
+ * Space to implement/Locks semaphores, Conner H
  */
 
-
+mutex mLock;
+sem_t sMutex;
 
 
 
@@ -378,7 +379,10 @@ void Lizard::sago2MonkeyGrassIsSafe()
 		cout << flush;
     }
 
-	
+	//crit section?
+	while(numCrossingSago2MonkeyGrass + numCrossingMonkeyGrass2Sago > MAX_LIZARD_CROSSING){ // CH
+		//not safe
+	}
 
 
 	if (debug)
@@ -501,7 +505,10 @@ void Lizard::monkeyGrass2SagoIsSafe()
 		cout << flush;
     }
 
-
+	
+	while(numCrossingMonkeyGrass2Sago + numCrossingSago2MonkeyGrass > MAX_LIZARD_CROSSING){ // CH, crit region?
+		//not safe
+	}
 
 
 
@@ -587,7 +594,9 @@ void Lizard::madeIt2Sago()
   * Status: Incomplete - Make changes as you see are necessary.
   */
 void Lizard::lizardThread(Lizard *aLizard)
-{	
+{
+
+	int sleepSeconds;	
 	if (debug)
     {
       cout << "[" << aLizard->getId() << "] lizard is alive" << endl;
@@ -605,9 +614,24 @@ void Lizard::lizardThread(Lizard *aLizard)
        */
 
 
+		//sleep for up to MAX_LIZARD_SLEEP
+		aLizard->sleepNow(); // CH
 
+		//Wait until sago to grass is safe
+		aLizard->sago2MonkeyGrassIsSafe(); //CH
 
+		//cross sago to grass, crit region?
+		aLizard->crossSago2MonkeyGrass(); // CH
 
+		//eat
+		aLizard->eat(); // CH
+
+		//wait until grass to sago is safe
+		aLizard->monkeyGrass2SagoIsSafe(); // CH
+
+		//cross, crit region?
+		aLizard->crossMonkeyGrass2Sago(); //CH
+		aLizard->madeIt2Sago(); //CH
 
 
 
