@@ -172,8 +172,7 @@ int Cat::getId()
  {
 	 // launch the thread to simulate the cat's behavior
 
-	 Cat cat1(1); // CH
-	 *_catThread = thread(catThread, this); // CH
+	 _catThread = new thread(catThread, this); // CH
  }
  
  /**
@@ -186,6 +185,7 @@ int Cat::getId()
 	 // wait for the thread to terminate
 	 if(_catThread != NULL){ // CH
 		 _catThread->join(); // CH
+		 delete _catThread; // CH
 	 }
  }
  
@@ -324,6 +324,7 @@ int Lizard::getId()
 	 // wait for the thread to terminate
 	if (_aLizard != NULL) {
         _aLizard->join();
+	delete _aLizard; //CH
     } 
  }
  
@@ -719,7 +720,13 @@ int main(int argc, char **argv)
      * Wait until all threads terminate
      */
 
+	for(int i = 0; i < NUM_LIZARDS; i++){ // CH
+		allLizards[i]->wait();
+	}
 
+	for(int i = 0; i < 2; i++){ //CH
+		allCats[i]->wait();
+	}
 
 
 
