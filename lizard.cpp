@@ -1,6 +1,6 @@
 /***************************************************************/
 /*                                                             */
-/* lizard.cpp                                                  */
+/* lizard.cpp, ConnerH, COP4634, Proj3                         */
 /*                                                             */
 /* To compile, you need all the files listed below             */
 /*   lizard.cpp                                                */
@@ -20,11 +20,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <semaphore.h> // Conner H
 
 #include <iostream>
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <queue> // Conner H
+#include <condition_variable> // Conner H
+//#include <semaphore> // Conner H c++20
+
 
 
 using namespace std;
@@ -108,6 +113,12 @@ int debug;
 int running;
 /**************************************************/
 
+/**
+ * Space to implement semaphores, Conner H
+ */
+
+
+
 
 
 /**
@@ -159,8 +170,10 @@ int Cat::getId()
  */
  void Cat::run() 
  {
-	 // launch the thread to simulate the cat's behavior	 
-	 
+	 // launch the thread to simulate the cat's behavior
+
+	 Cat cat1(1); // CH
+	 *_catThread = thread(catThread, this); // CH
  }
  
  /**
@@ -171,6 +184,9 @@ int Cat::getId()
  void Cat::wait()
  {
 	 // wait for the thread to terminate
+	 if(_catThread != NULL){ // CH
+		 _catThread->join(); // CH
+	 }
  }
  
  
@@ -512,7 +528,7 @@ void Lizard::crossMonkeyGrass2Sago()
     }
 
     /*
-     * One more crossing this way
+     * One more crossing this way, critical section
      */
 	numCrossingMonkeyGrass2Sago++;
 
@@ -534,7 +550,7 @@ void Lizard::crossMonkeyGrass2Sago()
 	sleep( CROSS_SECONDS );
 
 	/*
-     * That one seems to have made it
+     * That one seems to have made it, crit section
      */
 	numCrossingMonkeyGrass2Sago--;
 }
@@ -670,6 +686,10 @@ int main(int argc, char **argv)
     /*
      * Create NUM_CATS cat threads
      */
+    vector<Cat*> allCats; // CH
+    for(int i = 0; i < 2; i++){ // CH
+	    allCats.push_back(new Cat(i)); // CH
+    } // CH
 	 
 
 	/*
@@ -678,6 +698,10 @@ int main(int argc, char **argv)
     for (int i=0; i < NUM_LIZARDS; i++) {
         allLizards[i]->run();
     }
+
+    for(int i = 0; i < 2; i++){ //CH
+	    allCats[i]->run(); //CH
+    } //CH
 
 	/*
      * Now let the world run for a while
@@ -710,7 +734,13 @@ int main(int argc, char **argv)
 	 * Delete all cat and lizard objects
 	 */
  
+	for(int i = 0; i < NUM_LIZARDS; i++){ // CH
+		delete allLizards[i]; //CH
+	} //CH
 
+	for(int i = 0; i < 2; i++){ //CH
+		delete allCats[i]; // CH
+	} // CH
 
 
 	/*
