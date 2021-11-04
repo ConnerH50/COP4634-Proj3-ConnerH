@@ -379,17 +379,18 @@ void Lizard::sago2MonkeyGrassIsSafe()
 		cout << flush;
     }
 
-	//crit section?
-	while(numCrossingSago2MonkeyGrass + numCrossingMonkeyGrass2Sago > MAX_LIZARD_CROSSING){ // CH
-		//not safe
-	}
 
-
+	sem_wait(&sMutex); // CH
 	if (debug)
     {
 		cout << "[" << _id << "] thinks  sago -> monkey grass  is safe" << endl;
 		cout << flush;
     }
+	//sem_post(&sMutex); // CH
+
+	//sem_wait(&sMutex); // CH
+	return crossSago2MonkeyGrass();
+	//sem_post(&sMutex); // CH
 }
 
 
@@ -411,8 +412,10 @@ void Lizard::crossSago2MonkeyGrass()
 	/*
 	 * One more crossing this way
 	 */
+	//mLock.lock(); // CH
 	numCrossingSago2MonkeyGrass++;
-
+	cout << numCrossingSago2MonkeyGrass << endl;
+	//mLock.unlock(); // CH
 	/*
      * Check for lizards cross both ways
      */
@@ -433,7 +436,8 @@ void Lizard::crossSago2MonkeyGrass()
     /*
      * That one seems to have made it
      */
-    numCrossingSago2MonkeyGrass--;
+    	numCrossingSago2MonkeyGrass--;
+	sem_post(&sMutex); // CH, sem post as crossing is done
 }
 
 
@@ -447,13 +451,12 @@ void Lizard::madeIt2MonkeyGrass()
 	/*
      * Whew, made it across
      */
+
 	if (debug)
     {
 		cout << "[" << _id << "] made the  sago -> monkey grass  crossing" << endl;
 		cout << flush;
     }
-
-
 
 
 
@@ -508,6 +511,7 @@ void Lizard::monkeyGrass2SagoIsSafe()
 	
 	while(numCrossingMonkeyGrass2Sago + numCrossingSago2MonkeyGrass > MAX_LIZARD_CROSSING){ // CH, crit region?
 		//not safe
+		cout << "[" << _id << "] thinks monkey grass -> sago is not safe" << endl;
 	}
 
 
@@ -621,17 +625,18 @@ void Lizard::lizardThread(Lizard *aLizard)
 		aLizard->sago2MonkeyGrassIsSafe(); //CH
 
 		//cross sago to grass, crit region?
-		aLizard->crossSago2MonkeyGrass(); // CH
+		//aLizard->crossSago2MonkeyGrass(); // CH
+		aLizard->madeIt2MonkeyGrass();
 
 		//eat
 		aLizard->eat(); // CH
 
 		//wait until grass to sago is safe
-		aLizard->monkeyGrass2SagoIsSafe(); // CH
+		//aLizard->monkeyGrass2SagoIsSafe(); // CH
 
 		//cross, crit region?
-		aLizard->crossMonkeyGrass2Sago(); //CH
-		aLizard->madeIt2Sago(); //CH
+		//aLizard->crossMonkeyGrass2Sago(); //CH
+		//aLizard->madeIt2Sago(); //CH
 
 
 
@@ -696,7 +701,7 @@ int main(int argc, char **argv)
      * Initialize locks and/or semaphores
      */
 
-
+	sem_init(&sMutex, 0, 4); // CH, init with 4?
 
 
 	/*
@@ -759,7 +764,7 @@ int main(int argc, char **argv)
      * Delete the locks and semaphores
      */
 	 
-	 
+	sem_destroy(&sMutex);
 	 
 	/*
 	 * Delete all cat and lizard objects
