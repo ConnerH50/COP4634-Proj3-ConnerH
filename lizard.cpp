@@ -437,7 +437,7 @@ void Lizard::crossSago2MonkeyGrass()
      * That one seems to have made it
      */
     	numCrossingSago2MonkeyGrass--;
-	sem_post(&sMutex); // CH, sem post as crossing is done
+	//sem_post(&sMutex); // CH, sem post as crossing is done
 }
 
 
@@ -452,6 +452,8 @@ void Lizard::madeIt2MonkeyGrass()
      * Whew, made it across
      */
 
+
+	sem_post(&sMutex); // CH
 	if (debug)
     {
 		cout << "[" << _id << "] made the  sago -> monkey grass  crossing" << endl;
@@ -490,6 +492,9 @@ void Lizard::eat()
       cout << "[" << _id << "] finished eating" << endl;
       cout << flush;
     }
+
+	//cout << "[" << _id << "] finished eating" << endl; //CH
+	//cout << flush; //CH
 }
 
 
@@ -511,16 +516,17 @@ void Lizard::monkeyGrass2SagoIsSafe()
 	
 	while(numCrossingMonkeyGrass2Sago + numCrossingSago2MonkeyGrass > MAX_LIZARD_CROSSING){ // CH, crit region?
 		//not safe
-		cout << "[" << _id << "] thinks monkey grass -> sago is not safe" << endl;
+		//cout << "[" << _id << "] thinks monkey grass -> sago is not safe" << endl;
 	}
 
 
-
+	sem_wait(&sMutex); // CH
 	if (debug)
     {
 		cout << "[" << _id << "] thinks  monkey grass -> sago  is safe" << endl;
 		cout << flush;
     }
+	return crossMonkeyGrass2Sago(); // CH
 }
 
 
@@ -565,6 +571,7 @@ void Lizard::crossMonkeyGrass2Sago()
      * That one seems to have made it, crit section
      */
 	numCrossingMonkeyGrass2Sago--;
+	//sem_post(&sMutex); // CH
 }
 
 
@@ -579,6 +586,7 @@ void Lizard::madeIt2Sago()
 	/*
      * Whew, made it across
      */
+	sem_post(&sMutex); // CH
 	if (debug)
     {
 		cout << "[" << _id << "] made the  monkey grass -> sago  crossing" << endl;
@@ -632,11 +640,11 @@ void Lizard::lizardThread(Lizard *aLizard)
 		aLizard->eat(); // CH
 
 		//wait until grass to sago is safe
-		//aLizard->monkeyGrass2SagoIsSafe(); // CH
+		aLizard->monkeyGrass2SagoIsSafe(); // CH
 
 		//cross, crit region?
 		//aLizard->crossMonkeyGrass2Sago(); //CH
-		//aLizard->madeIt2Sago(); //CH
+		aLizard->madeIt2Sago(); //CH
 
 
 
