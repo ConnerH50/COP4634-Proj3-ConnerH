@@ -412,10 +412,9 @@ void Lizard::crossSago2MonkeyGrass()
 	/*
 	 * One more crossing this way
 	 */
-	//mLock.lock(); // CH
+
 	numCrossingSago2MonkeyGrass++;
-	cout << numCrossingSago2MonkeyGrass << endl;
-	//mLock.unlock(); // CH
+	
 	/*
      * Check for lizards cross both ways
      */
@@ -436,8 +435,8 @@ void Lizard::crossSago2MonkeyGrass()
     /*
      * That one seems to have made it
      */
+	cout << "Num crossing sago -> monkey grass: " << numCrossingSago2MonkeyGrass << endl; // CH, for testing
     	numCrossingSago2MonkeyGrass--;
-	//sem_post(&sMutex); // CH, sem post as crossing is done
 }
 
 
@@ -451,8 +450,6 @@ void Lizard::madeIt2MonkeyGrass()
 	/*
      * Whew, made it across
      */
-
-
 	sem_post(&sMutex); // CH
 	if (debug)
     {
@@ -492,9 +489,6 @@ void Lizard::eat()
       cout << "[" << _id << "] finished eating" << endl;
       cout << flush;
     }
-
-	//cout << "[" << _id << "] finished eating" << endl; //CH
-	//cout << flush; //CH
 }
 
 
@@ -570,8 +564,8 @@ void Lizard::crossMonkeyGrass2Sago()
 	/*
      * That one seems to have made it, crit section
      */
+	cout << "Num crossing monkey grass -> sago: " << numCrossingMonkeyGrass2Sago << endl; // CH for testing
 	numCrossingMonkeyGrass2Sago--;
-	//sem_post(&sMutex); // CH
 }
 
 
@@ -606,9 +600,7 @@ void Lizard::madeIt2Sago()
   * Status: Incomplete - Make changes as you see are necessary.
   */
 void Lizard::lizardThread(Lizard *aLizard)
-{
-
-	int sleepSeconds;	
+{	
 	if (debug)
     {
       cout << "[" << aLizard->getId() << "] lizard is alive" << endl;
@@ -629,7 +621,7 @@ void Lizard::lizardThread(Lizard *aLizard)
 		//sleep for up to MAX_LIZARD_SLEEP
 		aLizard->sleepNow(); // CH
 
-		//Wait until sago to grass is safe
+		//Wait until sago to grass is safe and cross
 		aLizard->sago2MonkeyGrassIsSafe(); //CH
 
 		//cross sago to grass, crit region?
@@ -639,23 +631,11 @@ void Lizard::lizardThread(Lizard *aLizard)
 		//eat
 		aLizard->eat(); // CH
 
-		//wait until grass to sago is safe
+		//wait until grass to sago is safe and cross
 		aLizard->monkeyGrass2SagoIsSafe(); // CH
 
-		//cross, crit region?
 		//aLizard->crossMonkeyGrass2Sago(); //CH
 		aLizard->madeIt2Sago(); //CH
-
-
-
-
-
-
-
-
-
-
-
 
 
     }
@@ -709,7 +689,7 @@ int main(int argc, char **argv)
      * Initialize locks and/or semaphores
      */
 
-	sem_init(&sMutex, 0, 4); // CH, init with 4?
+	sem_init(&sMutex, 0, MAX_LIZARD_CROSSING); // CH
 
 
 	/*
@@ -766,13 +746,11 @@ int main(int argc, char **argv)
 	}
 
 
-
-
 	/*
      * Delete the locks and semaphores
      */
 	 
-	sem_destroy(&sMutex);
+	sem_destroy(&sMutex); //CH
 	 
 	/*
 	 * Delete all cat and lizard objects
