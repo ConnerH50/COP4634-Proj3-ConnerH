@@ -386,11 +386,8 @@ void Lizard::sago2MonkeyGrassIsSafe()
 		cout << "[" << _id << "] thinks  sago -> monkey grass  is safe" << endl;
 		cout << flush;
     }
-	//sem_post(&sMutex); // CH
-
-	//sem_wait(&sMutex); // CH
+	
 	return crossSago2MonkeyGrass();
-	//sem_post(&sMutex); // CH
 }
 
 
@@ -412,8 +409,9 @@ void Lizard::crossSago2MonkeyGrass()
 	/*
 	 * One more crossing this way
 	 */
-
+	mLock.lock(); // CH
 	numCrossingSago2MonkeyGrass++;
+	mLock.unlock();
 	
 	/*
      * Check for lizards cross both ways
@@ -435,8 +433,10 @@ void Lizard::crossSago2MonkeyGrass()
     /*
      * That one seems to have made it
      */
-	cout << "Num crossing sago -> monkey grass: " << numCrossingSago2MonkeyGrass << endl; // CH, for testing
+	//cout << "Num crossing sago -> monkey grass: " << numCrossingSago2MonkeyGrass << endl; // CH, for testing
+	mLock.lock(); // CH
     	numCrossingSago2MonkeyGrass--;
+	mLock.unlock(); // CH
 }
 
 
@@ -542,7 +542,9 @@ void Lizard::crossMonkeyGrass2Sago()
     /*
      * One more crossing this way, critical section
      */
+	mLock.lock(); // CH
 	numCrossingMonkeyGrass2Sago++;
+	mLock.unlock();
 
   
     /*
@@ -564,8 +566,10 @@ void Lizard::crossMonkeyGrass2Sago()
 	/*
      * That one seems to have made it, crit section
      */
-	cout << "Num crossing monkey grass -> sago: " << numCrossingMonkeyGrass2Sago << endl; // CH for testing
+	//cout << "Num crossing monkey grass -> sago: " << numCrossingMonkeyGrass2Sago << endl; // CH for testing
+	mLock.lock(); // CH
 	numCrossingMonkeyGrass2Sago--;
+	mLock.unlock(); // CH
 }
 
 
