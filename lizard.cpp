@@ -58,7 +58,7 @@ using namespace std;
  * be simulated.  
  * Try 30 for development and 120 for more thorough testing.
  */
-#define WORLDEND             30
+#define WORLDEND             120
 
 /*
  * Number of lizard threads to create
@@ -433,7 +433,6 @@ void Lizard::crossSago2MonkeyGrass()
     /*
      * That one seems to have made it
      */
-	//cout << "Num crossing sago -> monkey grass: " << numCrossingSago2MonkeyGrass << endl; // CH, for testing
 	mLock.lock(); // CH
     	numCrossingSago2MonkeyGrass--;
 	mLock.unlock(); // CH
@@ -566,7 +565,6 @@ void Lizard::crossMonkeyGrass2Sago()
 	/*
      * That one seems to have made it, crit section
      */
-	//cout << "Num crossing monkey grass -> sago: " << numCrossingMonkeyGrass2Sago << endl; // CH for testing
 	mLock.lock(); // CH
 	numCrossingMonkeyGrass2Sago--;
 	mLock.unlock(); // CH
@@ -742,12 +740,12 @@ int main(int argc, char **argv)
      */
 
 	for(int i = 0; i < NUM_LIZARDS; i++){ // CH
-		allLizards[i]->wait();
-	}
+		allLizards[i]->wait(); // CH
+	} // CH
 
-	for(int i = 0; i < 2; i++){ //CH
-		allCats[i]->wait();
-	}
+	for(int i = 0; i < 2; i++){ // CH
+		allCats[i]->wait(); // CH
+	} // CH
 
 
 	/*
